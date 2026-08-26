@@ -2,80 +2,46 @@
     <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 
         <!DOCTYPE html>
-        <html>
+        <html lang="vi">
 
         <head>
             <meta charset="UTF-8">
-            <title>Edit Category</title>
-
-            <style>
-                body {
-                    font-family: Arial, sans-serif;
-                    margin: 40px;
-                }
-
-                .form-group {
-                    margin-bottom: 15px;
-                }
-
-                input[type="text"] {
-                    width: 300px;
-                    padding: 8px;
-                }
-
-                button {
-                    padding: 8px 15px;
-                    cursor: pointer;
-                }
-
-                a {
-                    margin-left: 10px;
-                    text-decoration: none;
-                }
-            </style>
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Sửa Category</title>
+            <link rel="stylesheet" href="${pageContext.request.contextPath}/css/style.css">
         </head>
 
         <body>
 
-            <h1>Edit Category</h1>
+            <div class="container">
+                <h1>Sửa Category</h1>
+                <p class="subtitle">Cập nhật thông tin category</p>
 
-            <form method="post" action="${pageContext.request.contextPath}/category?action=update">
+                <div class="form-card">
+                    <form method="post" action="${pageContext.request.contextPath}/category?action=update">
 
-                <input type="hidden" name="id" value="${category.id}">
+                        <input type="hidden" name="id" value="${category.id}">
 
-                <div class="form-group">
+                        <div class="form-group">
+                            <label>ID</label>
+                            <input type="text" value="${category.id}" disabled>
+                        </div>
 
-                    <label>
-                        ID:
-                    </label>
+                        <div class="form-group">
+                            <label for="name">Tên Category</label>
+                            <input type="text" id="name" name="name" value="${category.name}" required>
+                        </div>
 
-                    <strong>
-                        <c:out value="${category.id}" />
-                    </strong>
+                        <div class="form-actions">
+                            <button type="submit" class="btn">Cập nhật</button>
 
+                            <a class="btn btn-secondary" href="${pageContext.request.contextPath}/category?action=list">
+                                Hủy
+                            </a>
+                        </div>
+                    </form>
                 </div>
-
-                <div class="form-group">
-
-                    <label for="name">
-                        Category Name:
-                    </label>
-
-                    <br>
-
-                    <input type="text" id="name" name="name" value="<c:out value='${category.name}'/>" required>
-
-                </div>
-
-                <button type="submit">
-                    Update
-                </button>
-
-                <a href="${pageContext.request.contextPath}/category?action=list">
-                    Cancel
-                </a>
-
-            </form>
+            </div>
 
         </body>
 

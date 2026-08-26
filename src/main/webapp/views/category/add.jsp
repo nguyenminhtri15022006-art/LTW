@@ -1,66 +1,39 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 
     <!DOCTYPE html>
-    <html>
+    <html lang="vi">
 
     <head>
         <meta charset="UTF-8">
-        <title>Add Category</title>
-
-        <style>
-            body {
-                font-family: Arial, sans-serif;
-                margin: 40px;
-            }
-
-            .form-group {
-                margin-bottom: 15px;
-            }
-
-            input[type="text"] {
-                width: 300px;
-                padding: 8px;
-            }
-
-            button {
-                padding: 8px 15px;
-                cursor: pointer;
-            }
-
-            a {
-                margin-left: 10px;
-                text-decoration: none;
-            }
-        </style>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Thêm Category</title>
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/style.css">
     </head>
 
     <body>
 
-        <h1>Add Category</h1>
+        <div class="container">
+            <h1>Thêm Category</h1>
+            <p class="subtitle">Nhập thông tin category mới</p>
 
-        <form method="post" action="${pageContext.request.contextPath}/category?action=insert">
+            <div class="form-card">
+                <form method="post" action="${pageContext.request.contextPath}/category?action=insert">
 
-            <div class="form-group">
+                    <div class="form-group">
+                        <label for="name">Tên Category</label>
+                        <input type="text" id="name" name="name" placeholder="Ví dụ: Công nghệ" required>
+                    </div>
 
-                <label for="name">
-                    Category Name:
-                </label>
+                    <div class="form-actions">
+                        <button type="submit" class="btn">Lưu</button>
 
-                <br>
-
-                <input type="text" id="name" name="name" required>
-
+                        <a class="btn btn-secondary" href="${pageContext.request.contextPath}/category?action=list">
+                            Hủy
+                        </a>
+                    </div>
+                </form>
             </div>
-
-            <button type="submit">
-                Save
-            </button>
-
-            <a href="${pageContext.request.contextPath}/category?action=list">
-                Cancel
-            </a>
-
-        </form>
+        </div>
 
     </body>
 
