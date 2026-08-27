@@ -1,7 +1,7 @@
 package com.example.webapp.dao;
 
 import com.example.webapp.config.JpaConfig;
-import com.example.webapp.model.User;
+import com.example.webapp.entity.User;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.TypedQuery;

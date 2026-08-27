@@ -1,7 +1,7 @@
 package com.example.webapp.dao;
 
 import com.example.webapp.config.JpaConfig;
-import com.example.webapp.model.Category;
+import com.example.webapp.entity.Category;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityTransaction;
 import java.util.List;

@@ -1,6 +1,6 @@
 package com.example.webapp.service;
 
-import com.example.webapp.model.Category;
+import com.example.webapp.dto.CategoryDTO;
 import java.util.List;
 
 /**
@@ -11,22 +11,22 @@ public interface CategoryService {
     /**
      * Lấy tất cả danh mục.
      */
-    List<Category> getAll();
+    List<CategoryDTO> getAll();
 
     /**
      * Lấy danh mục theo id.
      */
-    Category getById(int id);
+    CategoryDTO getById(int id);
 
     /**
      * Tạo mới danh mục.
      */
-    void create(Category category);
+    void create(CategoryDTO category);
 
     /**
      * Cập nhật danh mục.
      */
-    void update(Category category);
+    void update(CategoryDTO category);
 
     /**
      * Xóa danh mục theo id.

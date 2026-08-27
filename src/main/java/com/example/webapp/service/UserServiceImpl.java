@@ -2,7 +2,9 @@ package com.example.webapp.service;
 
 import com.example.webapp.dao.UserDao;
 import com.example.webapp.dao.UserDaoImpl;
-import com.example.webapp.model.User;
+import com.example.webapp.dto.LoginDTO;
+import com.example.webapp.dto.UserDTO;
+import com.example.webapp.entity.User;
 
 /**
  * Service implementation for User business logic.
@@ -21,17 +23,18 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public boolean authenticate(String username, String password) {
-        if (username == null || password == null) {
+    public boolean authenticate(LoginDTO loginDTO) {
+        if (loginDTO == null || loginDTO.getUsername() == null || loginDTO.getPassword() == null) {
             return false;
         }
-        User user = userDao.getUserByUsername(username);
+        User user = userDao.getUserByUsername(loginDTO.getUsername());
         // Authentication check: matches password
-        return user != null && user.getPassword().equals(password);
+        return user != null && user.getPassword().equals(loginDTO.getPassword());
     }
 
     @Override
-    public User getUserDetails(String username) {
-        return userDao.getUserByUsername(username);
+    public UserDTO getUserDetails(String username) {
+        User user = userDao.getUserByUsername(username);
+        return user == null ? null : new UserDTO(user.getId(), user.getUsername(), user.getFullName());
     }
 }

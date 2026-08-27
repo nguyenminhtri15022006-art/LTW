@@ -1,6 +1,6 @@
 package com.example.webapp.controller;
 
-import com.example.webapp.model.Category;
+import com.example.webapp.dto.CategoryDTO;
 import com.example.webapp.service.CategoryService;
 import com.example.webapp.service.CategoryServiceImpl;
 import jakarta.servlet.ServletException;
@@ -85,7 +85,7 @@ public class CategoryServlet extends HttpServlet {
      */
     private void listCategories(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        List<Category> categories = categoryService.getAll();
+        List<CategoryDTO> categories = categoryService.getAll();
         request.setAttribute("categories", categories);
         request.getRequestDispatcher("/views/category/list.jsp").forward(request, response);
     }
@@ -104,7 +104,7 @@ public class CategoryServlet extends HttpServlet {
     private void showEditForm(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         int id = Integer.parseInt(request.getParameter("id"));
-        Category category = categoryService.getById(id);
+        CategoryDTO category = categoryService.getById(id);
         request.setAttribute("category", category);
         request.getRequestDispatcher("/views/category/edit.jsp").forward(request, response);
     }
@@ -115,9 +115,9 @@ public class CategoryServlet extends HttpServlet {
     private void insertCategory(HttpServletRequest request, HttpServletResponse response)
             throws IOException {
         String name = request.getParameter("name");
-        Category category = new Category();
-        category.setName(name);
-        categoryService.create(category);
+        CategoryDTO dto = new CategoryDTO();
+        dto.setName(name);
+        categoryService.create(dto);
         // Redirect về danh sách sau khi thêm
         response.sendRedirect(request.getContextPath() + "/category?action=list");
     }
@@ -129,8 +129,8 @@ public class CategoryServlet extends HttpServlet {
             throws IOException {
         int id = Integer.parseInt(request.getParameter("id"));
         String name = request.getParameter("name");
-        Category category = new Category(id, name);
-        categoryService.update(category);
+        CategoryDTO dto = new CategoryDTO(id, name);
+        categoryService.update(dto);
         // Redirect về danh sách sau khi cập nhật
         response.sendRedirect(request.getContextPath() + "/category?action=list");
     }

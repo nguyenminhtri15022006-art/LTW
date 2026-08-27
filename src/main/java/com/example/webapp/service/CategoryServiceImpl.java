@@ -2,8 +2,10 @@ package com.example.webapp.service;
 
 import com.example.webapp.dao.CategoryDao;
 import com.example.webapp.dao.CategoryDaoImpl;
-import com.example.webapp.model.Category;
+import com.example.webapp.dto.CategoryDTO;
+import com.example.webapp.entity.Category;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Triển khai CategoryService, gọi xuống CategoryDao để thao tác dữ liệu.
@@ -23,27 +25,42 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public List<Category> getAll() {
-        return categoryDao.findAll();
+    public List<CategoryDTO> getAll() {
+        return categoryDao.findAll().stream()
+                .map(this::toDTO)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public Category getById(int id) {
-        return categoryDao.findById(id);
+    public CategoryDTO getById(int id) {
+        return toDTO(categoryDao.findById(id));
     }
 
     @Override
-    public void create(Category category) {
-        categoryDao.insert(category);
+    public void create(CategoryDTO category) {
+        categoryDao.insert(toEntity(category));
     }
 
     @Override
-    public void update(Category category) {
-        categoryDao.update(category);
+    public void update(CategoryDTO category) {
+        categoryDao.update(toEntity(category));
     }
 
     @Override
     public void delete(int id) {
         categoryDao.delete(id);
+    }
+
+    private CategoryDTO toDTO(Category category) {
+        return category == null ? null : new CategoryDTO(category.getId(), category.getName());
+    }
+
+    private Category toEntity(CategoryDTO dto) {
+        Category category = new Category();
+        if (dto.getId() != null) {
+            category.setId(dto.getId());
+        }
+        category.setName(dto.getName());
+        return category;
     }
 }

@@ -1,6 +1,7 @@
 package com.example.webapp.controller;
 
-import com.example.webapp.model.User;
+import com.example.webapp.dto.LoginDTO;
+import com.example.webapp.dto.UserDTO;
 import com.example.webapp.service.UserService;
 import com.example.webapp.service.UserServiceImpl;
 import jakarta.servlet.ServletException;
@@ -15,7 +16,7 @@ import java.io.IOException;
 /**
  * Controller handling user login, authentication, and logout operations.
  */
-@WebServlet(name = "LoginServlet", urlPatterns = {"/login"})
+@WebServlet(name = "LoginServlet", urlPatterns = {"/login", "/home/login"})
 public class LoginServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private final UserService userService;
@@ -67,11 +68,12 @@ public class LoginServlet extends HttpServlet {
         String password = request.getParameter("password");
 
         // Authenticate credentials using the Service layer
-        boolean isAuthenticated = userService.authenticate(username, password);
+        LoginDTO loginDTO = new LoginDTO(username, password);
+        boolean isAuthenticated = userService.authenticate(loginDTO);
 
         if (isAuthenticated) {
             // Get detailed User info to store in session
-            User user = userService.getUserDetails(username);
+            UserDTO user = userService.getUserDetails(username);
             HttpSession session = request.getSession(true);
             session.setAttribute("currentUser", user);
 

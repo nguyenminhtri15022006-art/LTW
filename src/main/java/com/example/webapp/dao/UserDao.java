@@ -1,6 +1,6 @@
 package com.example.webapp.dao;
 
-import com.example.webapp.model.User;
+import com.example.webapp.entity.User;
 
 /**
  * Data Access Object (DAO) interface for User operations.

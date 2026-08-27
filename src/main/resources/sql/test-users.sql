@@ -3,7 +3,7 @@
 -- Bảng: users
 
 INSERT INTO users (username, password, full_name)
-VALUES ('admin', 'admin', 'System Administrator');
+VALUES ('admin', 'admin123', 'System Administrator');
 
 INSERT INTO users (username, password, full_name)
 VALUES ('nguyen', 'nguyen123', 'Nguyen Van A');

@@ -1,6 +1,6 @@
 package com.example.webapp.dao;
 
-import com.example.webapp.model.Category;
+import com.example.webapp.entity.Category;
 import java.util.List;
 
 /**
