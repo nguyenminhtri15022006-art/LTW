@@ -1,4 +1,5 @@
 com\example\webapp\dao\CategoryDao.class
+com\example\webapp\config\JpaConfig.class
 com\example\webapp\dao\CategoryDaoImpl.class
 com\example\webapp\model\Category.class
 com\example\webapp\controller\CategoryServlet.class

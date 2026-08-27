@@ -1,29 +1,35 @@
 package com.example.webapp.dao;
 
+import com.example.webapp.config.JpaConfig;
 import com.example.webapp.model.User;
-import java.util.HashMap;
-import java.util.Map;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.NoResultException;
+import jakarta.persistence.TypedQuery;
 
 /**
- * Implementation of UserDao using an in-memory data store.
+ * Implementation of UserDao using JPA/Hibernate with SQL Server.
  */
 public class UserDaoImpl implements UserDao {
-    private static final Map<String, User> mockDatabase = new HashMap<>();
-
-    static {
-        // Populating simulated users
-        mockDatabase.put("admin", new User("admin", "admin123", "System Administrator"));
-        mockDatabase.put("nguyen", new User("nguyen", "nguyen123", "Nguyen Van A"));
-        mockDatabase.put("sinhvien", new User("sinhvien", "123456", "Student User"));
-    }
 
     @Override
     public User getUserByUsername(String username) {
-        if (username == null) {
+        if (username == null || username.trim().isEmpty()) {
             return null;
         }
-        // Case-insensitive check to be user-friendly, or strict if required. Let's do
-        // strict.
-        return mockDatabase.get(username.trim().toLowerCase());
+
+        String normalizedUsername = username.trim();
+        EntityManager em = JpaConfig.getEntityManager();
+        try {
+            TypedQuery<User> query = em.createQuery(
+                    "SELECT u FROM User u WHERE LOWER(u.username) = LOWER(:username)",
+                    User.class
+            );
+            query.setParameter("username", normalizedUsername);
+            return query.getSingleResult();
+        } catch (NoResultException e) {
+            return null;
+        } finally {
+            em.close();
+        }
     }
 }
