@@ -1,0 +1,8 @@
+<div class="row g-4">
+<c:forEach var="p" items="${products}"><div class="col-12 col-md-6 col-lg-4"><article class="card h-100">
+<a href="${pageContext.request.contextPath}/product?action=detail&amp;id=${p.id}" class="text-decoration-none">
+<c:choose><c:when test="${not empty p.image}"><img class="product-image" src="${pageContext.request.contextPath}/images/<c:out value='${p.image}'/>" alt="<c:out value='${p.name}'/>"></c:when><c:otherwise><div class="image-placeholder">Chưa có ảnh</div></c:otherwise></c:choose>
+</a><div class="card-body"><h2 class="h5"><a href="${pageContext.request.contextPath}/product?action=detail&amp;id=${p.id}"><c:out value="${p.name}"/></a></h2>
+<p class="text-secondary"><c:out value="${p.categoryName}"/></p><p class="fw-bold"><fmt:formatNumber value="${p.price}" minFractionDigits="0" maxFractionDigits="2"/> ₫</p>
+<a class="btn btn-outline-primary" href="${pageContext.request.contextPath}/product?action=detail&amp;id=${p.id}">Xem chi tiết</a></div></article></div></c:forEach></div>
+<c:if test="${empty products}"><div class="alert alert-info">Chưa có sản phẩm.</div></c:if>

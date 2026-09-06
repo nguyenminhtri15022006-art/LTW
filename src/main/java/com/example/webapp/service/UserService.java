@@ -1,24 +1,23 @@
 package com.example.webapp.service;
 
-import com.example.webapp.dto.LoginDTO;
-import com.example.webapp.dto.UserDTO;
+import com.example.webapp.dto.*;
 
-/**
- * Service interface for User business logic operations.
- */
 public interface UserService {
-    /**
-     * Authenticate a user by username and password.
-     * @param username the username input
-     * @param password the password input
-     * @return true if credentials are valid, false otherwise
-     */
-    boolean authenticate(LoginDTO loginDTO);
+    boolean authenticate(LoginDTO dto);
 
-    /**
-     * Get details of a user by username.
-     * @param username the username
-     * @return user data safe for the web layer, or null if not found
-     */
+    UserDTO login(LoginDTO dto);
+
     UserDTO getUserDetails(String username);
+
+    void register(RegisterDTO dto);
+
+    void sendActivation(String email);
+
+    void activate(String email, String otp);
+
+    void forgotPassword(String email);
+
+    void resetPassword(String email, String otp, String password);
+
+    UserDTO updateProfile(Long id, ProfileDTO dto, String image);
 }

@@ -4,12 +4,11 @@ import com.example.webapp.dao.CategoryDao;
 import com.example.webapp.dao.CategoryDaoImpl;
 import com.example.webapp.dto.CategoryDTO;
 import com.example.webapp.entity.Category;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
-/**
- * Triển khai CategoryService, gọi xuống CategoryDao để thao tác dữ liệu.
- */
+/** Triển khai CategoryService, gọi xuống CategoryDao để thao tác dữ liệu. */
 public class CategoryServiceImpl implements CategoryService {
 
     private final CategoryDao categoryDao;
@@ -26,9 +25,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public List<CategoryDTO> getAll() {
-        return categoryDao.findAll().stream()
-                .map(this::toDTO)
-                .collect(Collectors.toList());
+        return categoryDao.findAll().stream().map(this::toDTO).collect(Collectors.toList());
     }
 
     @Override
@@ -38,11 +35,16 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public void create(CategoryDTO category) {
+        FormValidation.validate(category);
         categoryDao.insert(toEntity(category));
     }
 
     @Override
     public void update(CategoryDTO category) {
+        FormValidation.validate(category);
+        if (category.getId() == null || categoryDao.findById(category.getId()) == null) {
+            throw new ValidationException("id", "Category không tồn tại.");
+        }
         categoryDao.update(toEntity(category));
     }
 

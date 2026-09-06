@@ -1,0 +1,6 @@
+<div class="mb-3">
+<label for="image" class="form-label">Ảnh (tối đa 5 MB)</label>
+<input class="form-control" type="file" id="image" name="image" accept=".jpg,.jpeg,.png,.webp,.gif">
+<div class="form-text">JPG, JPEG, PNG, WEBP hoặc GIF. Để trống để giữ ảnh hiện tại.</div>
+<div class="text-danger small" role="alert"><c:out value="${errors.image}"/></div>
+</div>

@@ -9,15 +9,16 @@
 
         <class>com.example.webapp.entity.User</class>
         <class>com.example.webapp.entity.Category</class>
+        <class>com.example.webapp.entity.Product</class>
 
         <properties>
             <property name="jakarta.persistence.jdbc.driver" value="com.microsoft.sqlserver.jdbc.SQLServerDriver"/>
-            <property name="jakarta.persistence.jdbc.url" value="jdbc:sqlserver://localhost:14330;instanceName=MSSQLSERVER01;databaseName=jakartaJPA;encrypt=true;trustServerCertificate=true"/>
+            <property name="jakarta.persistence.jdbc.url" value="jdbc:sqlserver://localhost:1433;databaseName=jakartaJPA;encrypt=true;trustServerCertificate=true"/>
             <property name="jakarta.persistence.jdbc.user" value="sa"/>
             <property name="jakarta.persistence.jdbc.password" value="1234"/>
 
             <property name="hibernate.dialect" value="org.hibernate.dialect.SQLServerDialect"/>
-            <property name="hibernate.show_sql" value="true"/>
+            <property name="hibernate.show_sql" value="false"/>
             <property name="hibernate.format_sql" value="true"/>
             <property name="hibernate.hbm2ddl.auto" value="update"/>
         </properties>

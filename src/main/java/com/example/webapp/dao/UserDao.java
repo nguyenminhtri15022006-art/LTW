@@ -2,14 +2,16 @@ package com.example.webapp.dao;
 
 import com.example.webapp.entity.User;
 
-/**
- * Data Access Object (DAO) interface for User operations.
- */
+import java.util.function.Consumer;
+
 public interface UserDao {
-    /**
-     * Retrieve a user by their username.
-     * @param username the username to search for
-     * @return the User object if found, otherwise null
-     */
     User getUserByUsername(String username);
+
+    User findByEmail(String email);
+
+    User findById(Long id);
+
+    void insert(User user);
+
+    User change(Long id, Consumer<User> change);
 }

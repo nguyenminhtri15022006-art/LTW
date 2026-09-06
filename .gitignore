@@ -1,4 +1,9 @@
 target/
+.env
+.env.*
+!.env.example
+uploads/
+*.log
 .classpath
 .project
 .settings/

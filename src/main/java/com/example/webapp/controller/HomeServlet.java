@@ -1,30 +1,24 @@
 package com.example.webapp.controller;
 
-import jakarta.servlet.ServletException;
+import com.example.webapp.service.*;
+
+import jakarta.servlet.*;
 import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.*;
+
 import java.io.IOException;
 
-/**
- * Controller handling requests to the home URL.
- */
-@WebServlet(name = "HomeServlet", urlPatterns = {"/home"})
+@WebServlet(name = "HomeServlet", urlPatterns = "/home")
 public class HomeServlet extends HttpServlet {
-    private static final long serialVersionUID = 1L;
+    private final ProductService products = new ProductServiceImpl();
 
-    @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
-        // Forward the request to the index.jsp view inside /views
-        request.getRequestDispatcher("/views/index.jsp").forward(request, response);
+        req.setAttribute("products", products.newest());
+        WebSupport.view(req, resp, "index");
     }
 
-    @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        // Redirect POST requests back to GET /home
-        doGet(request, response);
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        resp.sendRedirect(req.getContextPath() + "/home");
     }
 }
