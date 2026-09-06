@@ -2,34 +2,68 @@ package com.example.webapp.dao;
 
 import com.example.webapp.config.JpaConfig;
 import com.example.webapp.entity.User;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.NoResultException;
-import jakarta.persistence.TypedQuery;
+import com.example.webapp.service.ValidationException;
 
-/**
- * Implementation of UserDao using JPA/Hibernate with SQL Server.
- */
+import jakarta.persistence.*;
+
+import java.util.function.Consumer;
+
 public class UserDaoImpl implements UserDao {
-
-    @Override
     public User getUserByUsername(String username) {
-        if (username == null || username.trim().isEmpty()) {
-            return null;
-        }
+        return find("username", username);
+    }
 
-        String normalizedUsername = username.trim();
-        EntityManager em = JpaConfig.getEntityManager();
-        try {
-            TypedQuery<User> query = em.createQuery(
-                    "SELECT u FROM User u WHERE LOWER(u.username) = LOWER(:username)",
-                    User.class
-            );
-            query.setParameter("username", normalizedUsername);
-            return query.getSingleResult();
-        } catch (NoResultException e) {
-            return null;
-        } finally {
-            em.close();
+    public User findByEmail(String email) {
+        return find("email", email);
+    }
+
+    private User find(String field, String value) {
+        if (value == null || value.isBlank()) return null;
+        try (EntityManager em = JpaConfig.getEntityManager()) {
+            return em.createQuery(
+                            "select u from User u where lower(u." + field + ") = :value",
+                            User.class)
+                    .setParameter("value", value.trim().toLowerCase(java.util.Locale.ROOT))
+                    .getResultStream()
+                    .findFirst()
+                    .orElse(null);
+        }
+    }
+
+    public User findById(Long id) {
+        try (EntityManager em = JpaConfig.getEntityManager()) {
+            return em.find(User.class, id);
+        }
+    }
+
+    public void insert(User user) {
+        try (EntityManager em = JpaConfig.getEntityManager()) {
+            var tx = em.getTransaction();
+            try {
+                tx.begin();
+                em.persist(user);
+                tx.commit();
+            } catch (RuntimeException e) {
+                if (tx.isActive()) tx.rollback();
+                throw e;
+            }
+        }
+    }
+
+    public User change(Long id, Consumer<User> change) {
+        try (EntityManager em = JpaConfig.getEntityManager()) {
+            var tx = em.getTransaction();
+            try {
+                tx.begin();
+                User user = em.find(User.class, id, LockModeType.PESSIMISTIC_WRITE);
+                if (user == null) throw new ValidationException("form", "Tài khoản không tồn tại.");
+                change.accept(user);
+                tx.commit();
+                return user;
+            } catch (RuntimeException e) {
+                if (tx.isActive()) tx.rollback();
+                throw e;
+            }
         }
     }
 }

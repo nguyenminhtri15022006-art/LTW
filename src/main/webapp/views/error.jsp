@@ -1,36 +1,10 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lỗi Đăng Nhập - BT25-08-2026</title>
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/style.css">
-</head>
-<body>
-
-    <div class="container" style="max-width: 400px;">
-        <h1>Đăng Nhập Thất Bại</h1>
-        <p class="subtitle">Có lỗi xảy ra trong quá trình xác thực</p>
-
-        <div class="alert alert-error">
-            <span class="alert-icon">⚠️</span>
-            <div class="alert-title">Sai Thông Tin Đăng Nhập</div>
-            <div class="alert-desc">Tên tài khoản hoặc mật khẩu bạn nhập chưa chính xác. Vui lòng kiểm tra lại.</div>
-        </div>
-
-        <div class="form-group">
-            <a href="${pageContext.request.contextPath}/login" class="btn">Thử lại Đăng nhập</a>
-        </div>
-
-        <div class="form-group">
-            <a href="${pageContext.request.contextPath}/home" class="btn btn-secondary">Quay lại Trang chủ</a>
-        </div>
-
-        <div class="footer-text">
-            © 2026 - Phát triển bởi Antigravity
-        </div>
-    </div>
-
-</body>
-</html>
+<%@ page contentType="text/html;charset=UTF-8" %>
+<%@ taglib prefix="c" uri="jakarta.tags.core" %>
+<%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
+<%@ taglib prefix="f" tagdir="/WEB-INF/tags" %>
+<!DOCTYPE html><html lang="vi"><head><title>Không thể thực hiện yêu cầu</title></head><body>
+<h1 class="mb-4">Không thể thực hiện yêu cầu</h1>
+<%@ include file="/WEB-INF/fragments/messages.jspf" %>
+<c:forEach items="${errors}" var="entry"><c:if test="${entry.key != 'form' && entry.key != 'id'}"><p class="text-danger"><c:out value="${entry.value}"/></p></c:if></c:forEach>
+<p>Vui lòng kiểm tra dữ liệu và thử lại.</p><a class="btn btn-primary" href="${pageContext.request.contextPath}/home">Home</a> <a class="btn btn-outline-primary" href="${pageContext.request.contextPath}/login">Login</a>
+</body></html>

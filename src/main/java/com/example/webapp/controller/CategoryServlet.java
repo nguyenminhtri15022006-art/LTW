@@ -1,148 +1,98 @@
 package com.example.webapp.controller;
 
 import com.example.webapp.dto.CategoryDTO;
-import com.example.webapp.service.CategoryService;
-import com.example.webapp.service.CategoryServiceImpl;
-import jakarta.servlet.ServletException;
+import com.example.webapp.service.*;
+
+import jakarta.servlet.*;
 import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.*;
+
 import java.io.IOException;
-import java.util.List;
 
-/**
- * Controller xử lý các thao tác CRUD cho Category.
- * URL pattern: /category?action=list|add|insert|edit|update|delete
- */
-@WebServlet(name = "CategoryServlet", urlPatterns = {"/category"})
+@WebServlet(name = "CategoryServlet", urlPatterns = "/category")
 public class CategoryServlet extends HttpServlet {
-    private static final long serialVersionUID = 1L;
-    private final CategoryService categoryService;
+    private final CategoryService categories = new CategoryServiceImpl();
 
-    public CategoryServlet() {
-        this.categoryService = new CategoryServiceImpl();
-    }
-
-    @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
-        // Lấy action từ query parameter, mặc định là "list"
-        String action = request.getParameter("action");
-        if (action == null) {
-            action = "list";
-        }
-
-        switch (action) {
-            case "add":
-                // Hiển thị form thêm mới category
-                showAddForm(request, response);
-                break;
-            case "edit":
-                // Hiển thị form chỉnh sửa category
-                showEditForm(request, response);
-                break;
-            case "delete":
-                // Xóa category theo id
-                deleteCategory(request, response);
-                break;
-            case "list":
-            default:
-                // Hiển thị danh sách category
-                listCategories(request, response);
-                break;
+        try {
+            String action = req.getParameter("action");
+            if ("add".equals(action)) {
+                if (WebSupport.authenticated(req, resp)) WebSupport.view(req, resp, "category/add");
+                return;
+            }
+            if ("edit".equals(action) || "delete".equals(action)) {
+                if (!WebSupport.authenticated(req, resp)) return;
+                CategoryDTO d = categories.getById(id(req));
+                if (d == null) {
+                    resp.sendError(404);
+                    return;
+                }
+                req.setAttribute("category", d);
+                WebSupport.view(
+                        req, resp, "delete".equals(action) ? "category/delete" : "category/edit");
+                return;
+            }
+            list(req, resp);
+        } catch (ValidationException e) {
+            resp.setStatus(400);
+            req.setAttribute("errors", e.getErrors());
+            list(req, resp);
         }
     }
 
-    @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
-        // Đặt encoding cho request để hỗ trợ tiếng Việt
-        request.setCharacterEncoding("UTF-8");
-
-        String action = request.getParameter("action");
-        if (action == null) {
-            action = "list";
+        if (!WebSupport.authenticated(req, resp)) return;
+        req.setCharacterEncoding("UTF-8");
+        String action = req.getParameter("action");
+        CategoryDTO d = new CategoryDTO();
+        d.setName(req.getParameter("name"));
+        try {
+            if ("delete".equals(action)) {
+                categories.delete(id(req));
+            } else if ("insert".equals(action)) {
+                categories.create(d);
+            } else if ("update".equals(action)) {
+                d.setId(id(req));
+                categories.update(d);
+            } else {
+                resp.sendError(400);
+                return;
+            }
+            resp.sendRedirect(req.getContextPath() + "/category");
+        } catch (ValidationException e) {
+            req.setAttribute("errors", e.getErrors());
+            req.setAttribute("category", d);
+            if ("delete".equals(action)) list(req, resp);
+            else
+                WebSupport.view(
+                        req, resp, "update".equals(action) ? "category/edit" : "category/add");
+        } catch (jakarta.persistence.PersistenceException e) {
+            req.setAttribute(
+                    "errors",
+                    java.util.Map.of(
+                            "form",
+                            "Không thể lưu/xóa Category. Hãy chuyển hoặc xóa các Product thuộc"
+                                + " Category trước."));
+            if ("delete".equals(action)) list(req, resp);
+            else {
+                req.setAttribute("category", d);
+                WebSupport.view(
+                        req, resp, "update".equals(action) ? "category/edit" : "category/add");
+            }
         }
-
-        switch (action) {
-            case "insert":
-                // Thêm mới category
-                insertCategory(request, response);
-                break;
-            case "update":
-                // Cập nhật category
-                updateCategory(request, response);
-                break;
-            default:
-                listCategories(request, response);
-                break;
-        }
     }
 
-    /**
-     * Hiển thị danh sách tất cả category.
-     */
-    private void listCategories(HttpServletRequest request, HttpServletResponse response)
+    private int id(HttpServletRequest req) {
+        long id = WebSupport.id(req);
+        if (id > Integer.MAX_VALUE) throw new ValidationException("id", "ID quá lớn.");
+        return (int) id;
+    }
+
+    private void list(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
-        List<CategoryDTO> categories = categoryService.getAll();
-        request.setAttribute("categories", categories);
-        request.getRequestDispatcher("/views/category/list.jsp").forward(request, response);
-    }
-
-    /**
-     * Forward tới form thêm mới category.
-     */
-    private void showAddForm(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        request.getRequestDispatcher("/views/category/add.jsp").forward(request, response);
-    }
-
-    /**
-     * Forward tới form chỉnh sửa category.
-     */
-    private void showEditForm(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        int id = Integer.parseInt(request.getParameter("id"));
-        CategoryDTO category = categoryService.getById(id);
-        request.setAttribute("category", category);
-        request.getRequestDispatcher("/views/category/edit.jsp").forward(request, response);
-    }
-
-    /**
-     * Xử lý thêm mới category từ form POST.
-     */
-    private void insertCategory(HttpServletRequest request, HttpServletResponse response)
-            throws IOException {
-        String name = request.getParameter("name");
-        CategoryDTO dto = new CategoryDTO();
-        dto.setName(name);
-        categoryService.create(dto);
-        // Redirect về danh sách sau khi thêm
-        response.sendRedirect(request.getContextPath() + "/category?action=list");
-    }
-
-    /**
-     * Xử lý cập nhật category từ form POST.
-     */
-    private void updateCategory(HttpServletRequest request, HttpServletResponse response)
-            throws IOException {
-        int id = Integer.parseInt(request.getParameter("id"));
-        String name = request.getParameter("name");
-        CategoryDTO dto = new CategoryDTO(id, name);
-        categoryService.update(dto);
-        // Redirect về danh sách sau khi cập nhật
-        response.sendRedirect(request.getContextPath() + "/category?action=list");
-    }
-
-    /**
-     * Xử lý xóa category theo id.
-     */
-    private void deleteCategory(HttpServletRequest request, HttpServletResponse response)
-            throws IOException {
-        int id = Integer.parseInt(request.getParameter("id"));
-        categoryService.delete(id);
-        // Redirect về danh sách sau khi xóa
-        response.sendRedirect(request.getContextPath() + "/category?action=list");
+        req.setAttribute("categories", categories.getAll());
+        WebSupport.view(req, resp, "category/list");
     }
 }

@@ -1,40 +1,11 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
-
-    <!DOCTYPE html>
-    <html lang="vi">
-
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Thêm Category</title>
-        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/style.css">
-    </head>
-
-    <body>
-
-        <div class="container">
-            <h1>Thêm Category</h1>
-            <p class="subtitle">Nhập thông tin category mới</p>
-
-            <div class="form-card">
-                <form method="post" action="${pageContext.request.contextPath}/category?action=insert">
-
-                    <div class="form-group">
-                        <label for="name">Tên Category</label>
-                        <input type="text" id="name" name="name" placeholder="Ví dụ: Công nghệ" required>
-                    </div>
-
-                    <div class="form-actions">
-                        <button type="submit" class="btn">Lưu</button>
-
-                        <a class="btn btn-secondary" href="${pageContext.request.contextPath}/category?action=list">
-                            Hủy
-                        </a>
-                    </div>
-                </form>
-            </div>
-        </div>
-
-    </body>
-
-    </html>
+<%@ page contentType="text/html;charset=UTF-8" %>
+<%@ taglib prefix="c" uri="jakarta.tags.core" %>
+<%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
+<%@ taglib prefix="f" tagdir="/WEB-INF/tags" %>
+<!DOCTYPE html><html lang="vi"><head><title>Thêm Category</title></head><body>
+<h1 class="mb-4">Thêm Category</h1>
+<%@ include file="/WEB-INF/fragments/messages.jspf" %>
+<div class="form-panel"><form method="post" action="${pageContext.request.contextPath}/category"><input type="hidden" name="csrf" value="${sessionScope.csrf}">
+<input type="hidden" name="action" value="insert"><input type="hidden" name="id" value="${category.id}">
+<f:input name="name" label="Tên Category" type="text" value="${category.name}" /><button class="btn btn-primary">Lưu</button> <a class="btn btn-outline-secondary" href="${pageContext.request.contextPath}/category">Hủy</a></form></div>
+</body></html>
