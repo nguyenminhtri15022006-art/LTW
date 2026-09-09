@@ -9,16 +9,20 @@ import jakarta.servlet.http.*;
 
 import java.io.IOException;
 
-@WebServlet(urlPatterns = {"/register", "/verify-otp", "/forgot-password", "/reset-password"})
-public class AccountServlet extends HttpServlet {
-    private final UserService users = new UserServiceImpl();
+@org.springframework.stereotype.Controller
+@org.springframework.web.bind.annotation.RequestMapping({"/register", "/verify-otp", "/forgot-password", "/reset-password"})
+public class AccountServlet {
+    @org.springframework.beans.factory.annotation.Autowired
+    private UserService users;
 
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp)
+    @org.springframework.web.bind.annotation.GetMapping
+    public void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
         view(req, resp);
     }
 
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp)
+    @org.springframework.web.bind.annotation.PostMapping
+    public void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
         req.setCharacterEncoding("UTF-8");
         String email = req.getParameter("email");
@@ -69,6 +73,6 @@ public class AccountServlet extends HttpServlet {
 
     private void view(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
-        req.getRequestDispatcher("/views" + req.getServletPath() + ".jsp").forward(req, resp);
+        WebSupport.view(req, resp, req.getServletPath().substring(1));
     }
 }

@@ -9,19 +9,23 @@ import jakarta.servlet.http.*;
 
 import java.io.IOException;
 
-@WebServlet("/profile")
-@MultipartConfig(maxFileSize = 5242880, maxRequestSize = 6291456, fileSizeThreshold = 0)
-public class ProfileServlet extends HttpServlet {
-    private final UserService users = new UserServiceImpl();
-    private final UploadService uploads = new UploadService();
+@org.springframework.stereotype.Controller
+@org.springframework.web.bind.annotation.RequestMapping({"/profile"})
+public class ProfileServlet {
+    @org.springframework.beans.factory.annotation.Autowired
+    private UserService users;
+    @org.springframework.beans.factory.annotation.Autowired
+    private UploadService uploads;
 
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp)
+    @org.springframework.web.bind.annotation.GetMapping
+    public void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
         if (!WebSupport.authenticated(req, resp)) return;
         WebSupport.view(req, resp, "profile");
     }
 
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp)
+    @org.springframework.web.bind.annotation.PostMapping
+    public void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
         if (!WebSupport.authenticated(req, resp)) return;
         req.setCharacterEncoding("UTF-8");

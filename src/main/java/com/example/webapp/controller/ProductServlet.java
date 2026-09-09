@@ -10,14 +10,18 @@ import jakarta.servlet.http.*;
 import java.io.IOException;
 import java.math.BigDecimal;
 
-@WebServlet("/product")
-@MultipartConfig(maxFileSize = 5242880, maxRequestSize = 6291456, fileSizeThreshold = 0)
-public class ProductServlet extends HttpServlet {
-    private final ProductService products = new ProductServiceImpl();
-    private final CategoryService categories = new CategoryServiceImpl();
-    private final UploadService uploads = new UploadService();
+@org.springframework.stereotype.Controller
+@org.springframework.web.bind.annotation.RequestMapping({"/product"})
+public class ProductServlet {
+    @org.springframework.beans.factory.annotation.Autowired
+    private ProductService products;
+    @org.springframework.beans.factory.annotation.Autowired
+    private CategoryService categories;
+    @org.springframework.beans.factory.annotation.Autowired
+    private UploadService uploads;
 
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp)
+    @org.springframework.web.bind.annotation.GetMapping
+    public void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
         String action = req.getParameter("action");
         try {
@@ -82,7 +86,8 @@ public class ProductServlet extends HttpServlet {
         }
     }
 
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp)
+    @org.springframework.web.bind.annotation.PostMapping
+    public void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
         if (!WebSupport.authenticated(req, resp)) return;
         req.setCharacterEncoding("UTF-8");

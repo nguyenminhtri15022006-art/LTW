@@ -6,6 +6,7 @@ import com.example.webapp.entity.*;
 
 import java.util.List;
 
+@org.springframework.stereotype.Service
 public class ProductServiceImpl implements ProductService {
     private final ProductDao products;
     private final CategoryDao categories;
@@ -14,6 +15,7 @@ public class ProductServiceImpl implements ProductService {
         this(new ProductDaoImpl(), new CategoryDaoImpl());
     }
 
+    @org.springframework.beans.factory.annotation.Autowired
     public ProductServiceImpl(ProductDao products, CategoryDao categories) {
         this.products = products;
         this.categories = categories;

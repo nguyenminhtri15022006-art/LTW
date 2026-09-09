@@ -9,6 +9,7 @@ import java.security.*;
 import java.time.LocalDateTime;
 import java.util.*;
 
+@org.springframework.stereotype.Service
 public class UserServiceImpl implements UserService {
     private final UserDao userDao;
     private final MailService mail;
@@ -22,6 +23,7 @@ public class UserServiceImpl implements UserService {
         this(dao, new MailService());
     }
 
+    @org.springframework.beans.factory.annotation.Autowired
     public UserServiceImpl(UserDao dao, MailService mail) {
         this.userDao = dao;
         this.mail = mail;
@@ -42,6 +44,7 @@ public class UserServiceImpl implements UserService {
         if (dto == null || dto.getPassword() == null || dto.getPassword().isBlank())
             errors.put("password", "Nhập mật khẩu.");
         if (!errors.isEmpty()) throw new ValidationException(errors);
+        FormValidation.validate(dto);
         User u = userDao.getUserByUsername(dto.getUsername());
         if (u == null) throw new ValidationException("username", "Tài khoản không tồn tại.");
         if (!PasswordService.matches(dto.getPassword(), u.getPassword()))
@@ -144,11 +147,9 @@ public class UserServiceImpl implements UserService {
                     v -> {
                         if (reset && Objects.equals(v.getResetOtp(), digest(otp))) {
                             v.setResetOtp(null);
-                            v.setResetOtpExpiresAt(null);
                         }
                         if (!reset && Objects.equals(v.getActivationOtp(), digest(otp))) {
                             v.setActivationOtp(null);
-                            v.setActivationOtpExpiresAt(null);
                         }
                     });
             throw e;

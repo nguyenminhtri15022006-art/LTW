@@ -8,8 +8,8 @@ import com.example.webapp.service.UploadService;
 import jakarta.servlet.*;
 import jakarta.servlet.http.*;
 
-import org.apache.catalina.startup.Tomcat;
-import org.apache.catalina.webresources.*;
+
+
 import org.junit.jupiter.api.*;
 
 import java.io.*;
@@ -20,103 +20,61 @@ import java.util.*;
 import java.util.regex.*;
 
 class WebRuntimeTest {
-    static Tomcat tomcat;
+    static org.springframework.context.ConfigurableApplicationContext application;
     static String base;
     static HttpClient client;
 
-    @BeforeAll
-    static void start() throws Exception {
-        tomcat = new Tomcat();
-        tomcat.setBaseDir(Path.of("target", "tomcat-test").toAbsolutePath().toString());
-        tomcat.setPort(0);
-        tomcat.getConnector().setProperty("address", "127.0.0.1");
-        var context =
-                tomcat.addWebapp(
-                        "/test", Path.of("src", "main", "webapp").toAbsolutePath().toString());
-        context.setParentClassLoader(WebRuntimeTest.class.getClassLoader());
-        var resources = new StandardRoot(context);
-        resources.addPreResources(
-                new DirResourceSet(
-                        resources,
-                        "/WEB-INF/classes",
-                        Path.of("target", "classes").toAbsolutePath().toString(),
-                        "/"));
-        context.setResources(resources);
-        var fixture =
-                Tomcat.addServlet(
-                        context,
-                        "fixture",
-                        new HttpServlet() {
-                            protected void doGet(HttpServletRequest req, HttpServletResponse resp)
-                                    throws ServletException, IOException {
-                                String view = req.getParameter("view");
-                                if (view == null
-                                        || !Set.of(
-                                                        "index",
-                                                        "profile",
-                                                        "product/list",
-                                                        "product/detail",
-                                                        "product/form",
-                                                        "category/list",
-                                                        "category/add",
-                                                        "category/edit",
-                                                        "category/delete")
-                                                .contains(view)) {
-                                    resp.sendError(400);
-                                    return;
-                                }
-                                UserDTO user =
-                                        new UserDTO(1L, "test", "Tên <script>alert(1)</script>");
-                                req.getSession().setAttribute("currentUser", user);
-                                ProductDTO p = new ProductDTO();
-                                p.setId(1L);
-                                p.setName("Product <script>alert(1)</script>");
-                                p.setCategoryId(1);
-                                p.setCategoryName("Category");
-                                p.setPrice(java.math.BigDecimal.TEN);
-                                p.setStock(5);
-                                req.setAttribute("product", p);
-                                req.setAttribute("products", List.of(p));
-                                req.setAttribute(
-                                        "categories", List.of(new CategoryDTO(1, "Category")));
-                                req.setAttribute("category", new CategoryDTO(1, "Category"));
-                                req.setAttribute("currentPage", 1);
-                                req.setAttribute("totalPages", 3);
-                                req.setAttribute("pageSize", 6);
-                                req.setAttribute("totalProducts", 13L);
-                                req.getRequestDispatcher("/views/" + view + ".jsp")
-                                        .forward(req, resp);
-                            }
+    @org.springframework.boot.test.context.TestConfiguration(proxyBeanMethods = false)
+    static class Fixtures {
+        @org.springframework.context.annotation.Bean
+        org.springframework.boot.web.servlet.ServletRegistrationBean<HttpServlet> fixture() {
+            var servlet = new HttpServlet() {
+                protected void doGet(HttpServletRequest req, HttpServletResponse resp)
+                        throws ServletException, IOException {
+                    String view = req.getParameter("view");
+                    if (view == null || !Set.of("index", "profile", "product/list", "product/detail",
+                            "product/form", "category/list", "category/add", "category/edit",
+                            "category/delete").contains(view)) { resp.sendError(400); return; }
+                    UserDTO user = new UserDTO(1L, "test", "Tên <script>alert(1)</script>");
+                    req.getSession().setAttribute("currentUser", user);
+                    ProductDTO p = new ProductDTO();
+                    p.setId(1L); p.setName("Product <script>alert(1)</script>");
+                    p.setCategoryId(1); p.setCategoryName("Category");
+                    p.setPrice(java.math.BigDecimal.TEN); p.setStock(5);
+                    req.setAttribute("product", p); req.setAttribute("products", List.of(p));
+                    req.setAttribute("categories", List.of(new CategoryDTO(1, "Category")));
+                    req.setAttribute("category", new CategoryDTO(1, "Category"));
+                    req.setAttribute("currentPage", 1); req.setAttribute("totalPages", 3);
+                    req.setAttribute("pageSize", 6); req.setAttribute("totalProducts", 13L);
+                    com.example.webapp.controller.WebSupport.view(req, resp, view);
+                }
+                protected void doPost(HttpServletRequest req, HttpServletResponse resp)
+                        throws ServletException, IOException {
+                    Part part = req.getPart("image");
+                    resp.setContentType("text/plain");
+                    resp.getWriter().write(req.getParameter("fullName") + ":" + part.getSize());
+                }
+            };
+            var bean = new org.springframework.boot.web.servlet.ServletRegistrationBean<HttpServlet>(servlet, "/fixture");
+            bean.setMultipartConfig(new MultipartConfigElement("", UploadService.MAX_SIZE, 6291456, 0));
+            return bean;
+        }
+    }
 
-                            protected void doPost(HttpServletRequest req, HttpServletResponse resp)
-                                    throws ServletException, IOException {
-                                Part part = req.getPart("image");
-                                resp.setContentType("text/plain");
-                                resp.getWriter()
-                                        .write(req.getParameter("fullName") + ":" + part.getSize());
-                            }
-                        });
-        fixture.setMultipartConfigElement(
-                new MultipartConfigElement("", UploadService.MAX_SIZE, 6291456, 0));
-        context.addServletMappingDecoded("/fixture", "fixture");
-        tomcat.start();
-        assertTrue(
-                context.getState().isAvailable(),
-                "Tomcat webapp must start without duplicate mappings");
-        base = "http://127.0.0.1:" + tomcat.getConnector().getLocalPort() + "/test";
-        client =
-                HttpClient.newBuilder()
-                        .cookieHandler(new CookieManager(null, CookiePolicy.ACCEPT_ALL))
-                        .build();
+    @BeforeAll
+    static void start() {
+        application = new org.springframework.boot.builder.SpringApplicationBuilder(WebApplication.class, Fixtures.class)
+            .run("--server.port=0", "--server.address=127.0.0.1", "--server.servlet.context-path=/test",
+                "--spring.datasource.url=jdbc:h2:mem:web;DB_CLOSE_DELAY=-1",
+                "--spring.datasource.driver-class-name=org.h2.Driver",
+                "--spring.datasource.username=sa", "--spring.datasource.password=",
+                "--spring.jpa.database-platform=org.hibernate.dialect.H2Dialect");
+        base = "http://127.0.0.1:" + application.getEnvironment().getProperty("local.server.port") + "/test";
+        client = HttpClient.newBuilder().cookieHandler(new CookieManager(null, CookiePolicy.ACCEPT_ALL)).build();
     }
 
     @AfterAll
-    static void stop() throws Exception {
-        if (tomcat != null) {
-            tomcat.stop();
-            tomcat.destroy();
-        }
-    }
+    static void stop() { if (application != null) application.close(); }
 
     static HttpResponse<String> get(String path) throws Exception {
         return client.send(
@@ -126,10 +84,19 @@ class WebRuntimeTest {
 
     static String csrf(String html) {
         Matcher m = Pattern.compile("name=\"csrf\" value=\"([^\"]+)\"").matcher(html);
-        assertTrue(m.find());
+        assertTrue(m.find(), html);
         return m.group(1);
     }
 
+    @Test
+    void sensitiveFormValuesAreNeverReflectedIntoHtml() throws Exception {
+        for (String route : List.of("/verify-otp", "/reset-password", "/register", "/login")) {
+            var r = get(route + "?otp=987654&password=SensitivePasswordValue");
+            assertEquals(200, r.statusCode());
+            assertFalse(r.body().contains("value=\"987654\""));
+            assertFalse(r.body().contains("SensitivePasswordValue"));
+        }
+    }
     @Test
     void publicAccountPagesHaveOneDecorator() throws Exception {
         for (String route :
@@ -142,7 +109,7 @@ class WebRuntimeTest {
                         "/reset-password")) {
             var r = get(route);
             assertEquals(200, r.statusCode(), r.body());
-            assertTrue(r.body().contains("navbar-brand"), route);
+            assertTrue(r.body().contains("navbar-brand"), r.body());
             assertEquals(1, r.body().split("<main", -1).length - 1);
             assertFalse(r.body().contains("<sitemesh:write"));
             csrf(r.body());
@@ -164,7 +131,7 @@ class WebRuntimeTest {
                         "category/delete")) {
             var r = get("/fixture?view=" + view);
             assertEquals(200, r.statusCode(), r.body());
-            assertTrue(r.body().contains("navbar-brand"), view);
+            assertTrue(r.body().contains("navbar-brand"), r.body());
             assertFalse(r.body().contains("<script>alert(1)</script>"), view);
             assertTrue(r.body().contains("&lt;script&gt;"), view);
         }

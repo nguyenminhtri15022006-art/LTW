@@ -9,11 +9,14 @@ import jakarta.servlet.http.*;
 
 import java.io.IOException;
 
-@WebServlet(name = "CategoryServlet", urlPatterns = "/category")
-public class CategoryServlet extends HttpServlet {
-    private final CategoryService categories = new CategoryServiceImpl();
+@org.springframework.stereotype.Controller
+@org.springframework.web.bind.annotation.RequestMapping({"/category"})
+public class CategoryServlet {
+    @org.springframework.beans.factory.annotation.Autowired
+    private CategoryService categories;
 
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp)
+    @org.springframework.web.bind.annotation.GetMapping
+    public void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
         try {
             String action = req.getParameter("action");
@@ -41,7 +44,8 @@ public class CategoryServlet extends HttpServlet {
         }
     }
 
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp)
+    @org.springframework.web.bind.annotation.PostMapping
+    public void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
         if (!WebSupport.authenticated(req, resp)) return;
         req.setCharacterEncoding("UTF-8");

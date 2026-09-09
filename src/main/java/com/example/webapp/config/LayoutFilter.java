@@ -10,6 +10,7 @@ public class LayoutFilter extends ConfigurableSiteMeshFilter {
                 .addDecoratorPath("/*", "/WEB-INF/decorators/main.jsp")
                 .addExcludedPath("/images/*")
                 .addExcludedPath("/css/*")
+                .addExcludedPath("/js/*")
                 .addExcludedPath("/WEB-INF/*");
     }
 }

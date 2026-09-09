@@ -11,13 +11,14 @@ import java.io.IOException;
 import java.net.*;
 import java.nio.charset.StandardCharsets;
 
-@WebServlet(
-        name = "LoginServlet",
-        urlPatterns = {"/login", "/home/login", "/logout"})
-public class LoginServlet extends HttpServlet {
-    private final UserService users = new UserServiceImpl();
+@org.springframework.stereotype.Controller
+@org.springframework.web.bind.annotation.RequestMapping({"/login", "/home/login", "/logout"})
+public class LoginServlet {
+    @org.springframework.beans.factory.annotation.Autowired
+    private UserService users;
 
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp)
+    @org.springframework.web.bind.annotation.GetMapping
+    public void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
         if ("logout".equals(req.getParameter("action")) || "/logout".equals(req.getServletPath())) {
             logout(req, resp);
@@ -33,10 +34,11 @@ public class LoginServlet extends HttpServlet {
                     } catch (IllegalArgumentException ignored) {
                     }
                 }
-        req.getRequestDispatcher("/views/login.jsp").forward(req, resp);
+        WebSupport.view(req, resp, "login");
     }
 
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp)
+    @org.springframework.web.bind.annotation.PostMapping
+    public void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
         if ("/logout".equals(req.getServletPath()) || "logout".equals(req.getParameter("action"))) {
             logout(req, resp);
@@ -65,7 +67,7 @@ public class LoginServlet extends HttpServlet {
         } catch (ValidationException e) {
             req.setAttribute("errors", e.getErrors());
             req.setAttribute("savedUsername", req.getParameter("username"));
-            req.getRequestDispatcher("/views/login.jsp").forward(req, resp);
+            WebSupport.view(req, resp, "login");
         }
     }
 

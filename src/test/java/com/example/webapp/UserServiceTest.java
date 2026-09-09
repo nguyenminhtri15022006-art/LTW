@@ -150,8 +150,42 @@ class UserServiceTest {
         assertFalse(u.isActive());
         assertNull(u.getActivationOtp());
         mail.fail = false;
+        assertThrows(ValidationException.class, () -> service.sendActivation(u.getEmail()));
+        u.setActivationOtpExpiresAt(LocalDateTime.now().plusMinutes(3));
         service.sendActivation(u.getEmail());
         activate();
+    }
+
+    @Test
+    void resetRejectsFiveFailuresAndMailFailureStillHasCooldown() {
+        User u = register();
+        activate();
+        mail.fail = true;
+        assertThrows(ValidationException.class, () -> service.forgotPassword(u.getEmail()));
+        assertNull(u.getResetOtp());
+        mail.fail = false;
+        assertThrows(ValidationException.class, () -> service.forgotPassword(u.getEmail()));
+        u.setResetOtpExpiresAt(LocalDateTime.now().plusMinutes(3));
+        service.forgotPassword(u.getEmail());
+        String valid = mail.otp;
+        String wrong = valid.equals("000000") ? "000001" : "000000";
+        for (int i = 0; i < 5; i++)
+            assertThrows(ValidationException.class,
+                    () -> service.resetPassword(u.getEmail(), wrong, "newPassword123"));
+        assertEquals(5, u.getResetAttempts());
+        assertThrows(ValidationException.class,
+                () -> service.resetPassword(u.getEmail(), valid, "newPassword123"));
+        assertNotNull(service.login(new LoginDTO("student", "password123")));
+    }
+
+    @Test
+    void loginRejectsOversizedCredentialsBeforeAuthentication() {
+        assertTrue(assertThrows(ValidationException.class,
+                () -> service.login(new LoginDTO("x".repeat(101), "password123")))
+                .getErrors().containsKey("username"));
+        assertTrue(assertThrows(ValidationException.class,
+                () -> service.login(new LoginDTO("student", "x".repeat(129))))
+                .getErrors().containsKey("password"));
     }
 
     @Test

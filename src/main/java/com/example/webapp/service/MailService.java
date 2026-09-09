@@ -7,6 +7,7 @@ import jakarta.mail.internet.*;
 
 import java.util.Properties;
 
+@org.springframework.stereotype.Service
 public class MailService {
     public void sendOtp(String email, String otp, String purpose) {
         try {

@@ -30,6 +30,8 @@ public final class WebSupport {
 
     public static void view(HttpServletRequest req, HttpServletResponse resp, String path)
             throws ServletException, IOException {
-        req.getRequestDispatcher("/views/" + path + ".jsp").forward(req, resp);
+        resp.setContentType("text/html;charset=UTF-8");
+        req.setAttribute("decoratedView", "/WEB-INF/views/" + path + ".jsp");
+        req.getRequestDispatcher("/WEB-INF/decorators/main.jsp").forward(req, resp);
     }
 }

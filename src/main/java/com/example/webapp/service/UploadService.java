@@ -9,6 +9,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.util.*;
 
+@org.springframework.stereotype.Service
 public class UploadService {
     public static final long MAX_SIZE = 5 * 1024 * 1024;
 

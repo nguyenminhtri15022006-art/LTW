@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /** Triển khai CategoryService, gọi xuống CategoryDao để thao tác dữ liệu. */
+@org.springframework.stereotype.Service
 public class CategoryServiceImpl implements CategoryService {
 
     private final CategoryDao categoryDao;
@@ -19,6 +20,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     // Constructor cho phép inject DAO (dùng khi test)
+    @org.springframework.beans.factory.annotation.Autowired
     public CategoryServiceImpl(CategoryDao categoryDao) {
         this.categoryDao = categoryDao;
     }

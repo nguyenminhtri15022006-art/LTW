@@ -8,12 +8,15 @@ import jakarta.servlet.http.*;
 import java.io.IOException;
 import java.nio.file.*;
 
-@WebServlet("/images/*")
-public class ImageServlet extends HttpServlet {
-    private final UploadService uploads = new UploadService();
+@org.springframework.stereotype.Controller
+@org.springframework.web.bind.annotation.RequestMapping({"/images/{filename}"})
+public class ImageServlet {
+    @org.springframework.beans.factory.annotation.Autowired
+    private UploadService uploads;
 
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        String path = req.getPathInfo();
+    @org.springframework.web.bind.annotation.GetMapping
+    public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        String path = req.getRequestURI().substring(req.getContextPath().length() + "/images".length());
         Path file = uploads.resolve(path == null ? null : path.substring(1));
         if (file == null || !Files.isRegularFile(file)) {
             resp.sendError(404);

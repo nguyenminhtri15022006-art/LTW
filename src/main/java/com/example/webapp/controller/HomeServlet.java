@@ -8,17 +8,21 @@ import jakarta.servlet.http.*;
 
 import java.io.IOException;
 
-@WebServlet(name = "HomeServlet", urlPatterns = "/home")
-public class HomeServlet extends HttpServlet {
-    private final ProductService products = new ProductServiceImpl();
+@org.springframework.stereotype.Controller
+@org.springframework.web.bind.annotation.RequestMapping({"/", "/home"})
+public class HomeServlet {
+    @org.springframework.beans.factory.annotation.Autowired
+    private ProductService products;
 
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp)
+    @org.springframework.web.bind.annotation.GetMapping
+    public void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
         req.setAttribute("products", products.newest());
         WebSupport.view(req, resp, "index");
     }
 
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+    @org.springframework.web.bind.annotation.PostMapping
+    public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         resp.sendRedirect(req.getContextPath() + "/home");
     }
 }
